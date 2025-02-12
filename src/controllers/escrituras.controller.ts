@@ -4,6 +4,7 @@ import { Escritura, escrituraSchema } from "../validations/escrituras/escrituras
 import { authModel } from "../models/auth.model";
 import { formatValidationErrors } from "../validations/validationErrors";
 
+// Crear una escritura
 const create_Escritura = async (req: Request, res: Response):Promise<any> => {
     // Validar la entrada con Zod usando safeParse
     const validationResult = escrituraSchema.safeParse(req.body);
@@ -17,23 +18,18 @@ const create_Escritura = async (req: Request, res: Response):Promise<any> => {
     try {
         // Extraer datos validados
         const { user_id, numero_escritura } = validationResult.data;
-
-    
-        // Verificar si el usuario existe 
         const existingUser = await  authModel.findOneById(user_id)
-
+        const existingEscritura = await escriturasModel.findOneByEscritura(numero_escritura )
+        
+        // Verificar si el usuario existe 
         if (!existingUser) {
             return res.status(409).json({ error: "El usuario no se encuentra registrado" });
         }
 
-
         // Verificar si la escritura ya existe 
-        const existingEscritura = await escriturasModel.findOneByEscritura(numero_escritura )
-
         if (existingEscritura) {
             return res.status(409).json({ error: "La escritura ya se encuentra registrada" });
         }
-
 
         // Si  existe, continuar con la creación del usuario
         const EscrituraData: Escritura = validationResult.data;
@@ -45,13 +41,64 @@ const create_Escritura = async (req: Request, res: Response):Promise<any> => {
 
     } catch (error) {
 
-        return res.status(500).json({ error});
+        return res.status(500).json({ error: "Error interno del servidor"});
     }
 };
 
 
+// todas las escrituras
+const allEscrituas = async (req:Request, res:Response): Promise<any> => {
+    try {
+        const data =  await escriturasModel.getAllEscrituras()
+        return res.status(200).json(data );
+        
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Error interno del servidor'
+        });
+    }
+
+}
+
+// actualizar escrituras
+const updateEscrituras = async (req: Request, res: Response): Promise<any> => {
+
+    const validationResult = escrituraSchema.safeParse(req.body);
+    if (!validationResult.success) {
+        const formattedErrors = formatValidationErrors(validationResult.error);
+        return res.status(400).json(formattedErrors);
+    }
+
+    try {
+        const  { numero_escritura, user_id, fecha} = validationResult.data;
+        const id = parseInt(req.params.id)
+        const existingUser = await authModel.findOneById(user_id);
+        const existingEscritura = await escriturasModel.findscrituraById(id )
+        
+        // valida si el usuario existe
+        
+        if (!existingUser) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        // valida si la esscritura existe
+        if(!existingEscritura) {
+            return res.status(404).json({ error: "escritura no encontrada" });
+        }
+        console.log(existingEscritura)
+        const updatedEscritura = await escriturasModel.update_escrituras(numero_escritura, user_id, fecha, id);
+        
+
+        return res.status(200).json({ message: "Escritura actualizada correctamente",updatedEscritura });
+    } catch (error) {
+        console.error("Error al actualizar la escritura:", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
 
 
 export const EscriturasController = {
-    create_Escritura
+    create_Escritura,
+    allEscrituas,
+    updateEscrituras
 };
