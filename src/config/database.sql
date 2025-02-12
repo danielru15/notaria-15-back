@@ -1,0 +1,25 @@
+-- CREAR LA TABLA USERS
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    cargo VARCHAR(100),
+    rol VARCHAR(50) NOT NULL  CHECK (rol IN ('ADMIN', 'EDITOR', 'VIEWER')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CREAR TABLA TABLA ESCRITURAS
+
+CREATE TABLE escrituras (
+    id SERIAL PRIMARY KEY,
+    numero_escritura VARCHAR(50) NOT NULL UNIQUE,
+    user_id INT NOT NULL,
+    fecha date NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
