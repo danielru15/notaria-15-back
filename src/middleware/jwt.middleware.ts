@@ -19,7 +19,7 @@ export const verifyToken = (req: RequestWithEmail, res: Response, next: NextFunc
 
     // Verifica y decodifica el token usando la clave secreta
     const { email, rol } = jwt.verify(token, SECRET_KEY) as JwtPayload;
-    console.log(rol);
+    
 
     // Almacena la información del usuario en el objeto de la solicitud para su uso posterior
     req.email = email;

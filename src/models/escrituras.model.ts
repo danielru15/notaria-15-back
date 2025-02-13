@@ -52,20 +52,23 @@ const getAllEscrituras = async () => {
   /*
     -- Consulta que obtiene la información de las escrituras junto con los datos del usuario asociado.  
     -- Se unen las tablas `escrituras` y `users` para recuperar el número y la fecha de la escritura,  
-    -- así como el nombre y apellido del usuario que la registró.
+    -- así como el nombre , apellido del usuario  y email que la registró.
   */
 
   const query = {
     text: `
-        SELECT 
-            escrituras.id AS escritura_id, 
-            escrituras.numero_escritura AS numero_de_escritura, 
-            escrituras.fecha AS fecha_de_escritura, 
-            usuarios.id AS usuario_id,
-            usuarios.name AS nombre_usuario, 
-            usuarios.last_name AS apellido_usuario
-        FROM escrituras
-        JOIN users AS usuarios ON escrituras.user_id = usuarios.id;
+      SELECT 
+          escrituras.id AS escritura_id, 
+          escrituras.numero_escritura AS numero_de_escritura, 
+          escrituras.fecha AS fecha_de_escritura, 
+          usuarios.id AS usuario_id,
+          usuarios.name AS nombre_usuario, 
+          usuarios.last_name AS apellido_usuario,
+          usuarios.email AS email
+      FROM escrituras
+      JOIN users AS usuarios ON escrituras.user_id = usuarios.id
+      ORDER BY escrituras.fecha DESC;
+
     `,
   }
   const { rows } = await db.query(query)
