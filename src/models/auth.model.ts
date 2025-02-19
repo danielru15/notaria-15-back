@@ -17,10 +17,10 @@ const createUser = async ({ name, last_name, email, password, cargo, rol }: User
   };
 
   // busca usuario por email
-  const findOneByEmail = async (email:any):Promise<any> => {
+  const findOneByEmail = async (email?:string):Promise<Users> => {
     const query = {
         text: `
-          SELECT name, last_name, email, cargo, rol, password FROM users
+          SELECT name, last_name, email, cargo, rol, password , created_at FROM users
           WHERE EMAIL = $1
         `,
         values: [email]
@@ -30,10 +30,10 @@ const createUser = async ({ name, last_name, email, password, cargo, rol }: User
 }
 
  // busca usuario por id
- const findOneById = async (id:number):Promise<any> => {
+ const findOneById = async (id:number):Promise<Users> => {
   const query = {
       text: `
-        SELECT id FROM users
+        SELECT name , last_name, email  FROM users
         WHERE id = $1
       `,
       values: [id]
@@ -43,7 +43,7 @@ const createUser = async ({ name, last_name, email, password, cargo, rol }: User
 }
 
 //trae todos los usuarios
-const getAllUsers = async () => {
+const getAllUsers = async ():Promise<Users[]> => {
   const query = {
     text: `
       SELECT * FROM users
@@ -55,7 +55,7 @@ return rows
 
 
 // elimina un usuario
-const delete_User = async (id:number) => {
+const delete_User = async (id:number):Promise<Users[]> => {
   const query = {
     text: `
       DELETE FROM users WHERE id = $1
@@ -67,7 +67,7 @@ return rows
 }
 
 // actualizar un usuario
-const update_parcial_info = async ( cargo:string, rol:string, id:number)=> {
+const update_parcial_info = async ( cargo:string, rol:string, id:number):Promise<Users[]> => {
   const query = {
     text: `
       UPDATE users SET cargo=$1, rol=$2 

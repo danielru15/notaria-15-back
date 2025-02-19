@@ -5,6 +5,7 @@ import cors from 'cors';
 import cookieParser from "cookie-parser";
 import escriturasRoutes from "./routes/escrituras.routes";
 import Mailrouter from "./routes/mail.routes";
+import CasoRentasRoutes from "./routes/casoRentas.routes";
 
 
  const PORT = 5000;
@@ -41,6 +42,12 @@ app.use("/api/users" , authRoutes)
 
 // rutas escrituras
 app.use("/api/escrituras" , escriturasRoutes)
+
+// rutas escrituras
+app.use("/api/escrituras" , escriturasRoutes)
+
+// rutas caso rentas
+app.use("/api/caso-rentas" , CasoRentasRoutes)
 
 // rutas mail
 app.use("/api/mail", Mailrouter); // Cargar rutas

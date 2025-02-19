@@ -5,14 +5,15 @@ import { authModel } from "../models/auth.model";
 import { formatValidationErrors } from "../validations/validationErrors";
 
 // Crear una escritura
-const create_Escritura = async (req: Request, res: Response):Promise<any> => {
+const create_Escritura = async (req: Request, res: Response):Promise<void> => {
     // Validar la entrada con Zod usando safeParse
     const validationResult = escrituraSchema.safeParse(req.body);
     
     
      if (!validationResult.success) {
             const formattedErrors = formatValidationErrors(validationResult.error);
-            return res.status(400).json(formattedErrors);
+            res.status(400).json(formattedErrors);
+            return
         }
 
     try {
@@ -23,12 +24,14 @@ const create_Escritura = async (req: Request, res: Response):Promise<any> => {
         
         // Verificar si el usuario existe 
         if (!existingUser) {
-            return res.status(409).json({ error: "El usuario no se encuentra registrado" });
+            res.status(409).json({ error: "El usuario no se encuentra registrado" });
+            return
         }
 
         // Verificar si la escritura ya existe 
         if (existingEscritura) {
-            return res.status(409).json({ error: "La escritura ya se encuentra registrada" });
+            res.status(409).json({ error: "La escritura ya se encuentra registrada" });
+            return
         }
 
         // Si  existe, continuar con la creación del usuario
@@ -37,36 +40,35 @@ const create_Escritura = async (req: Request, res: Response):Promise<any> => {
 
         // Llamar al modelo para crear la escritura
         await escriturasModel.createEscritura(EscrituraData);
-        return res.status(201).json({ mensaje: "Escritura creada con éxito" });
+        res.status(201).json({ mensaje: "Escritura creada con éxito" });
 
     } catch (error) {
 
-        return res.status(500).json({ error: "Error interno del servidor"});
+        res.status(500).json({ error: "Error interno del servidor"});
     }
 };
 
 
 // todas las escrituras
-const allEscrituas = async (req:Request, res:Response): Promise<any> => {
+const allEscrituas = async (req:Request, res:Response): Promise<void> => {
     try {
         const data =  await escriturasModel.getAllEscrituras()
-        return res.status(200).json(data );
+        res.status(200).json(data );
         
     } catch (error) {
-        return res.status(500).json({
-            error: 'Error interno del servidor'
-        });
+         res.status(500).json({ error: 'Error interno del servidor'});
     }
 
 }
 
 // actualizar escrituras
-const updateEscrituras = async (req: Request, res: Response): Promise<any> => {
+const updateEscrituras = async (req: Request, res: Response): Promise<void> => {
 
     const validationResult = escrituraSchema.safeParse(req.body);
     if (!validationResult.success) {
         const formattedErrors = formatValidationErrors(validationResult.error);
-        return res.status(400).json(formattedErrors);
+        res.status(400).json(formattedErrors);
+        return
     }
 
     try {
@@ -78,23 +80,29 @@ const updateEscrituras = async (req: Request, res: Response): Promise<any> => {
         // valida si el usuario existe
         
         if (!existingUser) {
-            return res.status(404).json({ error: "Usuario no encontrado" });
+            res.status(404).json({ error: "Usuario no encontrado" });
+            return
         }
 
         // valida si la esscritura existe
         if(!existingEscritura) {
-            return res.status(404).json({ error: "escritura no encontrada" });
+            res.status(404).json({ error: "escritura no encontrada" });
+            return
         }
-        console.log(existingEscritura)
+
         const updatedEscritura = await escriturasModel.update_escrituras(numero_escritura, user_id, fecha, id);
         
 
-        return res.status(200).json({ message: "Escritura actualizada correctamente",updatedEscritura });
+        res.status(200).json({ message: "Escritura actualizada correctamente",updatedEscritura });
     } catch (error) {
         console.error("Error al actualizar la escritura:", error);
-        return res.status(500).json({ error: "Error interno del servidor" });
+        res.status(500).json({ error: "Error interno del servidor" });
+        return
     }
 };
+
+
+
 
 
 export const EscriturasController = {

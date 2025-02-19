@@ -22,20 +22,28 @@ const createEscritura = async ({numero_escritura, user_id, fecha }:Escritura ):P
 
 
 
- // busca escritura por escritura
- const findOneByEscritura = async (numero_escritura:string):Promise<any> => {
+ // Busca escritura por número de escritura
+ const findOneByEscritura = async (numero_escritura: string): Promise<{ id: number, nombre_completo: string } | null> => {
   const query = {
-      text: `
-        SELECT numero_escritura FROM escrituras WHERE numero_escritura = $1
-      `,
-      values: [numero_escritura]
-  }
-  const { rows } = await db.query(query)
-  return rows[0]
-}
+    text: `
+      SELECT 
+          escrituras.id,
+          CONCAT(usuarios.name, ' ', usuarios.last_name) AS nombre_completo
+      FROM escrituras
+      JOIN users AS usuarios ON escrituras.user_id = usuarios.id
+      WHERE escrituras.numero_escritura = $1;
+    `,
+    values: [numero_escritura],
+  };
+
+  const { rows } = await db.query(query);
+  return rows[0] ? { id: rows[0].id, nombre_completo: rows[0].nombre_completo } : null;
+};
+
+
 
  // busca escritura por id
- const findscrituraById = async (id:number):Promise<any> => {
+ const findscrituraById = async (id:number):Promise<Escritura> => {
   const query = {
       text: `
         SELECT numero_escritura FROM escrituras WHERE id = $1
@@ -48,7 +56,7 @@ const createEscritura = async ({numero_escritura, user_id, fecha }:Escritura ):P
 
 // traer todas las escrituraa con nombre de usuario
 
-const getAllEscrituras = async () => {
+const getAllEscrituras = async ():Promise<Escritura[]> => {
   /*
     -- Consulta que obtiene la información de las escrituras junto con los datos del usuario asociado.  
     -- Se unen las tablas `escrituras` y `users` para recuperar el número y la fecha de la escritura,  
@@ -75,7 +83,8 @@ const getAllEscrituras = async () => {
   return rows
 }
 
-const update_escrituras = async ( numero_escritura:any, user_id:number, fecha:string, id:number)=> {
+
+const update_escrituras = async ( numero_escritura:any, user_id:number, fecha:string, id:number):Promise<Escritura[]>=> {
   const query = {
     text: `
       UPDATE escrituras SET numero_escritura=$1, user_id=$2 , fecha=$3
@@ -85,7 +94,7 @@ const update_escrituras = async ( numero_escritura:any, user_id:number, fecha:st
     values: [numero_escritura, user_id, fecha, id]
   }
   const { rows } = await db.query(query)
-return rows
+  return rows
 }
 
   export const escriturasModel = {

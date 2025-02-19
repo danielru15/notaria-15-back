@@ -112,6 +112,7 @@ const profile = async (req: RequestWithEmail, res: Response): Promise<any> => {
         });
     }
 };
+
 // cerrar sesion
 const logout = async (req:Request, res:Response) => {
     res.clearCookie('token')
@@ -172,6 +173,8 @@ const updatePartialUser = async (req: Request, res: Response): Promise<any> => {
         return res.status(500).json({ error: "Error interno del servidor" });
     }
 };
+
+
 // Exportación del controlador
 export const AuthController = {
     createNewUser,

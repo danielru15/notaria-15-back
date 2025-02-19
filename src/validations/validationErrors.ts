@@ -1,16 +1,9 @@
 import { z } from "zod";
 
-// Tipo para los errores de validación formateados
-export type ValidationErrors = {
-    [key: string]: string;
-};
-
 // Función para organizar los errores de validación
-export const formatValidationErrors = (error: z.ZodError): ValidationErrors => {
-    // Aquí devolvemos directamente un objeto con los errores formateados
-    return error.errors.reduce((acc: ValidationErrors, e) => {
-        acc[e.path.join('.')] = e.message; // Usamos el path como clave y el mensaje como valor
-        return acc;
-    }, {});
+export const formatValidationErrors = (error: z.ZodError): { error: string } => {
+    // Devolvemos el primer error encontrado como un objeto con el campo "error"
+    return {
+        error: error.errors[0].message,
+    };
 };
-
