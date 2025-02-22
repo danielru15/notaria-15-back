@@ -6,6 +6,6 @@ export interface Users {
     password: string;
     cargo:string;
     rol: 'ADMIN' | 'EDITOR' | 'VIEWER';
-    created_at:string
+    created_at?:string
   }
  

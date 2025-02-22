@@ -31,7 +31,7 @@ CREATE TABLE caso_rentas (
     observaciones TEXT,
     estado VARCHAR(20) NOT NULL DEFAULT 'activo' CHECK (estado IN ('activo', 'finalizado')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    pdf BOOLEAN DEFAULT FALSE,
+    pdf VARCHAR(50),
     FOREIGN KEY (escritura_id) REFERENCES escrituras(id) ON DELETE CASCADE
 );
 

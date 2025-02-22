@@ -20,7 +20,7 @@ const createUser = async ({ name, last_name, email, password, cargo, rol }: User
   const findOneByEmail = async (email?:string):Promise<Users> => {
     const query = {
         text: `
-          SELECT name, last_name, email, cargo, rol, password , created_at FROM users
+          SELECT id, name, last_name, email, cargo, rol, password , created_at FROM users
           WHERE EMAIL = $1
         `,
         values: [email]
@@ -79,11 +79,26 @@ const update_parcial_info = async ( cargo:string, rol:string, id:number):Promise
 return rows
 }
 
+const update_password = async (userId: number, newPassword: string): Promise<void> => {
+  const query = {
+    text: `
+      UPDATE users 
+      SET password = $1 
+      WHERE id = $2
+    `,
+    values: [newPassword, userId],
+  };
+
+  await db.query(query);
+};
+
+
 export const authModel = {
     createUser,
     findOneByEmail,
     getAllUsers,
     delete_User,
     update_parcial_info,
-    findOneById
+    findOneById,
+    update_password
 }

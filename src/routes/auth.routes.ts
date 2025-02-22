@@ -27,5 +27,8 @@ authRoutes.patch("/:id",[verifyToken, verifyEditor], AuthController.updatePartia
 authRoutes.delete("/:id", [verifyToken, verifyAdmin],  AuthController.deleteUser);
 
 
+// -> /api/users/change password
+authRoutes.put("/change-password", verifyToken,  AuthController.changePassword);
+
 
 export default authRoutes

@@ -6,6 +6,7 @@ import { escriturasModel } from "../models/escrituras.model";
 import { casoRentasSchema, updateAllCasoRentasSchema, updateCasoRentasSchema } from "../validations/casoRentas/casoRentasValidation";
 import { casoRentasModel } from "../models/casoRentas.model";
 import sendEmail from "../config/email/sendEmail";
+import { db } from "../config/conection.database";
 
 
 // crear caso de rentas
@@ -39,8 +40,8 @@ const create_Caso_Rentas = async (req: Request, res: Response): Promise<void> =>
 
         // Verificar si un caso de rentas ya existe
         const existingRadicado = await casoRentasModel.findOneByRadicado(radicado);
-        if (existingRadicado) {
-            res.status(409).json({ error: `Ya existe el radicado ${radicado} y pertenece a la escritura ${existingRadicado}.` });
+        if (existingRadicado && existingRadicado.numero_escritura) {
+            res.status(409).json({ error: `Ya existe el radicado ${radicado} y pertenece a la escritura ${existingRadicado.numero_escritura}.` });
             return; 
         }
 
@@ -139,8 +140,10 @@ const updateCasoRentasAll = async (req: Request, res: Response): Promise<void> =
         
         // Verificar si el radicado es distinto de la escritura
         const existingRadicado = await casoRentasModel.findOneByRadicado(radicado);
-        if (existingRadicado  !== existingEscrituraById.numero_escritura && existingRadicado !== null) {
-            res.status(400).json({ error: `El radicado pertenece a la escritura ${existingRadicado}. Por favor, proporcione un nuevo radicado.` });
+        if (existingRadicado && existingRadicado.numero_escritura !== existingEscrituraById.numero_escritura) {
+            res.status(400).json({ 
+                error: `El radicado pertenece a la escritura ${existingRadicado.numero_escritura}. Por favor, proporcione un nuevo radicado.` 
+            });
             return;
         }
 
@@ -160,7 +163,7 @@ const updateCasoRentasAll = async (req: Request, res: Response): Promise<void> =
         const updateCasoRenta = await casoRentasModel.updateParcialCasoRentas(radicado, observaciones, id);
 
         const { name, last_name, email } = existingUser;
-        if (existingRadicado  !== existingEscrituraById.numero_escritura  && updateCasoRenta) {
+        if (!existingRadicado && updateCasoRenta) {
             // Datos para el correo
             const emailData = {
                 to: email,
@@ -175,9 +178,21 @@ const updateCasoRentasAll = async (req: Request, res: Response): Promise<void> =
                 },
             };
 
+            const query = {
+                text: `
+                  UPDATE caso_rentas 
+                  SET pdf = NULL 
+                  WHERE id = $1
+                `,
+                values: [id],
+              };
+
             try {
-                // Intentar enviar correo
+                // Intentar enviar correo y actualiza pdf
+                await db.query(query)
                 await sendEmail(emailData);
+                
+
             } catch (emailError) {
                 // Si falla el envío del correo, responder con un mensaje de error
                 console.error("Error al enviar correo:", emailError);
@@ -199,15 +214,10 @@ const updateCasoRentasAll = async (req: Request, res: Response): Promise<void> =
 // traer todos los casos rentas
 
 const allCasoRentas = async (req:Request, res:Response): Promise<void> => {
-    const {estado } = req.query
-       // Verificar que el parámetro "estado" está presente
-       if (!estado) {
-        res.status(400).json({ error: 'El parámetro estado es obligatorio' });
-        return;
-    }
+    
 
     try {
-        const data =  await casoRentasModel.allCaso_Rentas(estado as string)
+        const data =  await casoRentasModel.allCaso_Rentas()
         res.status(200).json(data );
         
     } catch (error) {

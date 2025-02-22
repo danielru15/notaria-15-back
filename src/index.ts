@@ -1,4 +1,5 @@
- import express from "express"
+
+import express from "express"
 import { db } from "./config/conection.database";
 import authRoutes from "./routes/auth.routes";
 import cors from 'cors';
@@ -6,6 +7,8 @@ import cookieParser from "cookie-parser";
 import escriturasRoutes from "./routes/escrituras.routes";
 import Mailrouter from "./routes/mail.routes";
 import CasoRentasRoutes from "./routes/casoRentas.routes";
+
+import "./controllers/boletasRenta/watcher"; // Importa el watcher para que se ejecute al iniciar el servidor
 
 
  const PORT = 5000;

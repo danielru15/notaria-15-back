@@ -30,28 +30,18 @@ const updateParcialCasoRentas = async (radicado: string, observaciones: string, 
   return rows;
 };
 
-const updateEstadoCasoRentas = async (id: number) => {
+
+
+const updatePdfCasoRentas = async (path:string , radicado: string ) => {
+
   const query = {
     text: `
       UPDATE caso_rentas 
-      SET estado = 'finalizado' 
-      WHERE id = $1
+      SET pdf = $1 , estado= 'finalizado'
+      WHERE radicado = $2
+      RETURNING *
     `,
-    values: [id],
-  };
-
-  const { rows } = await db.query(query);
-  return rows[0];
-};
-
-const updatePdfCasoRentas = async (id: number) => {
-  const query = {
-    text: `
-      UPDATE caso_rentas 
-      SET pdf = true 
-      WHERE id = $1
-    `,
-    values: [id],
+    values: [path, radicado],
   };
 
   const { rows } = await db.query(query);
@@ -63,7 +53,12 @@ const findOneByRadicado = async (radicado: string) => {
   const query = {
     text: `
       SELECT 
-        escrituras.numero_escritura
+        caso_rentas.radicado,
+        escrituras.numero_escritura,
+         escrituras.fecha,
+        users.name,                
+        users.last_name,         
+        users.email 
       FROM caso_rentas 
       JOIN escrituras ON caso_rentas.escritura_id = escrituras.id
       JOIN users ON escrituras.user_id = users.id
@@ -73,8 +68,10 @@ const findOneByRadicado = async (radicado: string) => {
   };
 
   const { rows } = await db.query(query);
-  return rows[0]?.numero_escritura || null;
+  return rows[0] || null;
 };
+
+
 
 const findOneById = async (id: number) => {
   const query = {
@@ -93,7 +90,7 @@ const findOneById = async (id: number) => {
   return rows[0]?.numero_escritura || null;
 };
 
-const allCaso_Rentas = async (estado: string): Promise<CasoRentasResponse[]> => {
+const allCaso_Rentas = async (): Promise<CasoRentasResponse[]> => {
   const query = {
     text: `
       SELECT 
@@ -112,11 +109,9 @@ const allCaso_Rentas = async (estado: string): Promise<CasoRentasResponse[]> => 
       FROM caso_rentas
       JOIN escrituras ON caso_rentas.escritura_id = escrituras.id  
       JOIN users ON escrituras.user_id = users.id  
-      WHERE caso_rentas.estado = $1
       ORDER BY caso_rentas.created_at DESC;
 
-    `,
-    values: [estado],
+    `
   };
 
   const { rows } = await db.query(query);
@@ -128,7 +123,6 @@ export const casoRentasModel = {
   createCasoRentas,
   findOneByRadicado,
   updateParcialCasoRentas,
-  updateEstadoCasoRentas,
   updatePdfCasoRentas,
   findOneById,
   allCaso_Rentas,

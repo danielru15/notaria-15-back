@@ -4,7 +4,7 @@ export interface CasoRentas {
     radicado: string;
     observaciones?: string;
     estado?: 'activo' | 'finalizado';
-    pdf?: boolean;
+    pdf?: string;
 }
 
 export interface CasoRentasResponse {
@@ -12,7 +12,7 @@ export interface CasoRentasResponse {
     radicado: string;
     observaciones: string;
     estado: string;
-    pdf: boolean;
+    pdf?: string;
     numero_escritura: string;
     name: string;
     user_id:number;

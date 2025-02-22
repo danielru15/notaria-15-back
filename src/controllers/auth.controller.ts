@@ -5,6 +5,7 @@ import { formatValidationErrors } from "../validations/validationErrors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { RequestWithEmail } from "../interfaces/requesWithemail.interface";
+import sendEmail from "../config/email/sendEmail";
 
 const SECRET_KEY = "claveSecretaSuperSegura";
 
@@ -40,9 +41,35 @@ const createNewUser = async (req: Request, res: Response): Promise<any> => {
 
         // Crear el usuario con la contraseña hasheada
         const userWithHashedPassword = { ...userData, password: hashedPassword };
-        await authModel.createUser(userWithHashedPassword);
+        const succces = await authModel.createUser(userWithHashedPassword);
+        if(succces) {
+            // Datos para el correo
+            const emailData = {
+                to: email,
+                subject: "sistema de gestion notaria 15",
+                templateFile: "nuevoUsuario",
+                templateData: {
+                    nombre: userData.name.toUpperCase(),
+                    apellido: userData.last_name.toUpperCase(),
+                    email:email,
+                    password:userData.password
+                },
+            };
 
+            try {
+                // Intentar enviar correo
+                await sendEmail(emailData);
+            } catch (emailError) {
+                // Si falla el envío del correo, responder con un mensaje de error
+                console.error("Error al enviar correo:", emailError);
+                res.status(500).json({ error: "El correo no pudo ser enviado, pero el usuario se creó exitosamente." });
+                return;
+            }
+        }
         return res.status(201).json({ mensaje: "Usuario creado con éxito" });
+
+       
+
     } catch (error) {
         console.error("Error al crear el usuario:", error);
 
@@ -174,6 +201,43 @@ const updatePartialUser = async (req: Request, res: Response): Promise<any> => {
     }
 };
 
+const changePassword = async (req: RequestWithEmail, res: Response): Promise<void> => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            res.status(400).json({ error: "Todos los campos son obligatorios" });
+            return;
+        }
+
+        // Validar la nueva contraseña usando Zod
+        const passwordValidation = userCreateValidate.shape.password.safeParse(newPassword);
+        if (!passwordValidation.success) {
+            res.status(400).json(formatValidationErrors(passwordValidation.error))
+            return;
+        }
+
+        const user = await authModel.findOneByEmail(req.email);
+        if (!user) {
+            res.status(404).json({ error: "Usuario no encontrado" });
+            return;
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            res.status(401).json({ error: "Contraseña antigua incorrecta" });
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await authModel.update_password(user.id as number, hashedPassword);
+
+        res.json({ message: "Contraseña actualizada correctamente" });
+    } catch (error) {
+        console.error("Error cambiando la contraseña:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
 
 // Exportación del controlador
 export const AuthController = {
@@ -183,5 +247,6 @@ export const AuthController = {
     logout,
     allUsers,
     deleteUser,
-    updatePartialUser
+    updatePartialUser,
+    changePassword
 };
