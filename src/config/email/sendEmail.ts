@@ -36,7 +36,7 @@ const sendEmail = async ({ to, subject, templateFile, templateData, attachments 
     }) || [];
     // Configurar el correo
     const mailOptions = {
-      from: "daniel_ramirezur@virtual.ceipa.edu.co",
+      from: "drestrepo@correo.iue.edu.co",
       to,
       subject,
       html: htmlContent,
@@ -47,7 +47,7 @@ const sendEmail = async ({ to, subject, templateFile, templateData, attachments 
     await transporter.sendMail(mailOptions);
  
   } catch (error) {
-  
+    console.log(error)
     throw new Error("No se pudo enviar el correo");
   }
 };
