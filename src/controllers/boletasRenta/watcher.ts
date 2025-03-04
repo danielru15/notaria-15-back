@@ -6,7 +6,7 @@ import { db } from "../../config/conection.database";
 import sendEmail from "../../config/email/sendEmail";
 
 // Definir la carpeta donde se subirán los archivos
-const UPLOAD_FOLDER = "/Users/danielru/Desktop/uploads";
+const UPLOAD_FOLDER = "C:/Users/Pc-David/OneDrive - IUE/Desktop/uploads";
 fs.ensureDirSync(UPLOAD_FOLDER); // Asegurar que la carpeta exista
 
 // Conjunto para rastrear los PDFs procesados y evitar duplicados
@@ -99,7 +99,7 @@ const sendEmailNotification = async (casoRenta: any, filePath: string) => {
         },
         attachments: [filePath] // Adjuntar el archivo PDF
     };
-
+    console.log(emailData.attachments)
     try {
         await sendEmail(emailData);
         console.log(`Correo enviado correctamente a ${casoRenta?.email}`);
