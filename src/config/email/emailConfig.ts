@@ -10,8 +10,8 @@ import path from "path";
     port: 587,
     secure: false,
     auth: {
-        user: "daniel_ramirezur@virtual.ceipa.edu.co",
-        pass: "Dr1152217356",
+        user: "drestrepo@correo.iue.edu.co",
+        pass: "vera.96082719544",
     },
     
 });
