@@ -93,23 +93,25 @@ const findOneById = async (id: number) => {
 const allCaso_Rentas = async (): Promise<CasoRentasResponse[]> => {
   const query = {
     text: `
-      SELECT 
-        caso_rentas.id,                    
-        caso_rentas.radicado,        
-        caso_rentas.observaciones,       
-        caso_rentas.estado,              
-        caso_rentas.pdf,
-        escrituras.numero_escritura, 
-        escrituras.fecha,
-        escrituras.id AS escritura_id,
-        users.id AS user_id,
-        users.name,                
-        users.last_name,         
-        users.email 
-      FROM caso_rentas
-      JOIN escrituras ON caso_rentas.escritura_id = escrituras.id  
-      JOIN users ON escrituras.user_id = users.id  
-      ORDER BY caso_rentas.created_at DESC;
+    SELECT 
+      caso_rentas.id,                    
+      caso_rentas.radicado,        
+      caso_rentas.observaciones,       
+      caso_rentas.estado,              
+      caso_rentas.pdf,
+      escrituras.numero_escritura, 
+      escrituras.fecha,
+      escrituras.id AS escritura_id,
+      users.id AS user_id,
+      users.name,                
+      users.last_name,         
+      users.email 
+    FROM caso_rentas
+    JOIN escrituras ON caso_rentas.escritura_id = escrituras.id  
+    JOIN users ON escrituras.user_id = users.id  
+    ORDER BY caso_rentas.estado ASC, caso_rentas.created_at DESC;
+
+
 
     `
   };

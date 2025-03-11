@@ -1,4 +1,4 @@
-
+import "./controllers/boletasRenta/watcher"; // Importa el watcher para que se ejecute al iniciar el servidor
 import express from "express"
 import { db } from "./config/conection.database";
 import authRoutes from "./routes/auth.routes";
@@ -7,8 +7,8 @@ import cookieParser from "cookie-parser";
 import escriturasRoutes from "./routes/escrituras.routes";
 import Mailrouter from "./routes/mail.routes";
 import CasoRentasRoutes from "./routes/casoRentas.routes";
-
-import "./controllers/boletasRenta/watcher"; // Importa el watcher para que se ejecute al iniciar el servidor
+import RentasYRegistro from "./routes/rentasYregistro.routes";
+import Facturas from "./routes/facturas.routes";
 
 
  const PORT = 5000;
@@ -42,15 +42,13 @@ testDbConnection()
 
 // rutas users
 app.use("/api/users" , authRoutes)
-
 // rutas escrituras
 app.use("/api/escrituras" , escriturasRoutes)
-
-// rutas escrituras
-app.use("/api/escrituras" , escriturasRoutes)
-
 // rutas caso rentas
 app.use("/api/caso-rentas" , CasoRentasRoutes)
-
+// rutas rentas y registro
+app.use("/api/rentas_y_registro" , RentasYRegistro)
+// rutas facturas
+app.use("/api/facturas" , Facturas)
 // rutas mail
-app.use("/api/mail", Mailrouter); // Cargar rutas
+app.use("/api/mail", Mailrouter);

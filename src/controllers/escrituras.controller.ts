@@ -34,7 +34,7 @@ const create_Escritura = async (req: Request, res: Response):Promise<void> => {
             return
         }
 
-        // Si  existe, continuar con la creación del usuario
+        // Si  existe, continuar con la creación de la escritura
         const EscrituraData: Escritura = validationResult.data;
 
 
